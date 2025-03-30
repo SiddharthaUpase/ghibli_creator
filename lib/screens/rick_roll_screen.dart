@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 class RickRollScreen extends StatefulWidget {
   const RickRollScreen({super.key});
@@ -10,8 +10,8 @@ class RickRollScreen extends StatefulWidget {
 }
 
 class _RickRollScreenState extends State<RickRollScreen> {
-  // YouTube video ID for Rick Roll
-  final String _youtubeVideoId = 'xvFZjo5PgG0';
+  // YouTube video ID for the new video
+  final String _youtubeVideoId = 'BBJa32lCaaY';
   late YoutubePlayerController _controller;
   bool _isReady = false;
 
@@ -26,22 +26,22 @@ class _RickRollScreenState extends State<RickRollScreen> {
     ]);
 
     _controller = YoutubePlayerController(
-      initialVideoId: _youtubeVideoId,
-      flags: const YoutubePlayerFlags(
-        autoPlay: true,
+      params: const YoutubePlayerParams(
+        showControls: true,
         mute: false,
-        disableDragSeek: true,
+        showFullscreenButton: true,
         loop: false,
-        hideControls: false,
-        hideThumbnail: true,
-        forceHD: false,
       ),
-    )..addListener(() {
-      if (_controller.value.isReady && !_isReady) {
-        setState(() {
-          _isReady = true;
-        });
-      }
+    );
+
+    // Load the video
+    _controller.loadVideoById(videoId: _youtubeVideoId);
+
+    // Add listener to check when video is ready
+    _controller.setFullScreenListener((isFullScreen) {
+      setState(() {
+        _isReady = true;
+      });
     });
   }
 
@@ -52,27 +52,15 @@ class _RickRollScreenState extends State<RickRollScreen> {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
-    _controller.dispose();
+    _controller.close();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return YoutubePlayerBuilder(
-      player: YoutubePlayer(
-        controller: _controller,
-        showVideoProgressIndicator: true,
-        progressIndicatorColor: Colors.red,
-        progressColors: const ProgressBarColors(
-          playedColor: Colors.red,
-          handleColor: Colors.redAccent,
-        ),
-        onReady: () {
-          setState(() {
-            _isReady = true;
-          });
-        },
-      ),
+    return YoutubePlayerScaffold(
+      controller: _controller,
+      aspectRatio: 16 / 9,
       builder: (context, player) {
         return Scaffold(
           backgroundColor: Colors.black,
@@ -88,22 +76,7 @@ class _RickRollScreenState extends State<RickRollScreen> {
               style: TextStyle(color: Colors.white),
             ),
           ),
-          body: Center(
-            child:
-                _isReady
-                    ? player
-                    : const Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        CircularProgressIndicator(color: Colors.white),
-                        SizedBox(height: 20),
-                        Text(
-                          'Preparing your masterpiece...',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ],
-                    ),
-          ),
+          body: Center(child: player),
         );
       },
     );
