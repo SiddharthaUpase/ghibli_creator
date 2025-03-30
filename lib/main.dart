@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:ghibli_creator/services/rate_limiter.dart';
@@ -9,12 +8,12 @@ import 'package:ghibli_creator/screens/loading_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await dotenv.load();
+  // Hardcoded Supabase credentials for test app
+  const supabaseUrl = 'https://nbskxnehhsrfatmozbwa.supabase.co';
+  const supabaseAnonKey =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ic2t4bmVoaHNyZmF0bW96YndhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMzMzAwNjYsImV4cCI6MjA1ODkwNjA2Nn0.vzN241pU_Lctuc1QqDu0xfesoWLKmzkvQUy8mMBbj0g';
 
-  await Supabase.initialize(
-    url: dotenv.env['SUPABASE_URL']!,
-    anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
-  );
+  await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
 
   runApp(const MyApp());
 }
