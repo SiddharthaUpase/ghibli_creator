@@ -25,17 +25,17 @@ class _RickRollScreenState extends State<RickRollScreen> {
       DeviceOrientation.landscapeRight,
     ]);
 
-    _controller = YoutubePlayerController(
+    _controller = YoutubePlayerController.fromVideoId(
+      videoId: _youtubeVideoId,
+      autoPlay: true,
       params: const YoutubePlayerParams(
         showControls: true,
         mute: false,
         showFullscreenButton: true,
         loop: false,
+        enableCaption: true,
       ),
     );
-
-    // Load the video
-    _controller.loadVideoById(videoId: _youtubeVideoId);
 
     // Add listener to check when video is ready
     _controller.setFullScreenListener((isFullScreen) {
