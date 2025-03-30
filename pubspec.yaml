@@ -39,6 +39,7 @@ dependencies:
   video_player: ^2.8.1
   shared_preferences: ^2.2.2
   path_provider: ^2.1.1
+  youtube_player_flutter: ^8.1.2
   
 dev_dependencies:
   flutter_test:
@@ -67,8 +68,6 @@ flutter:
     - assets/g1.jpeg
     - assets/g2.jpg
     - assets/g3.jpg
-    - assets/rick_roll.mp4
-    - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

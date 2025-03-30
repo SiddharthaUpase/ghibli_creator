@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
+import 'package:flutter/services.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class RickRollScreen extends StatefulWidget {
   const RickRollScreen({super.key});
@@ -9,53 +10,102 @@ class RickRollScreen extends StatefulWidget {
 }
 
 class _RickRollScreenState extends State<RickRollScreen> {
-  late VideoPlayerController _controller;
-  bool _isInitialized = false;
+  // YouTube video ID for Rick Roll
+  final String _youtubeVideoId = 'xvFZjo5PgG0';
+  late YoutubePlayerController _controller;
+  bool _isReady = false;
 
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.asset('assets/rick_roll.mp4')
-      ..initialize().then((_) {
+
+    // Set device to landscape mode for better video viewing
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+
+    _controller = YoutubePlayerController(
+      initialVideoId: _youtubeVideoId,
+      flags: const YoutubePlayerFlags(
+        autoPlay: true,
+        mute: false,
+        disableDragSeek: true,
+        loop: false,
+        hideControls: false,
+        hideThumbnail: true,
+        forceHD: false,
+      ),
+    )..addListener(() {
+      if (_controller.value.isReady && !_isReady) {
         setState(() {
-          _isInitialized = true;
+          _isReady = true;
         });
-        _controller.play();
-        _controller.setLooping(true);
-      });
+      }
+    });
   }
 
   @override
   void dispose() {
+    // Return to portrait mode when navigating away
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
+    return YoutubePlayerBuilder(
+      player: YoutubePlayer(
+        controller: _controller,
+        showVideoProgressIndicator: true,
+        progressIndicatorColor: Colors.red,
+        progressColors: const ProgressBarColors(
+          playedColor: Colors.red,
+          handleColor: Colors.redAccent,
         ),
-        title: const Text(
-          'Your Ghibli Art Is Ready!',
-          style: TextStyle(color: Colors.white),
-        ),
+        onReady: () {
+          setState(() {
+            _isReady = true;
+          });
+        },
       ),
-      body: Center(
-        child:
-            _isInitialized
-                ? AspectRatio(
-                  aspectRatio: _controller.value.aspectRatio,
-                  child: VideoPlayer(_controller),
-                )
-                : const CircularProgressIndicator(),
-      ),
+      builder: (context, player) {
+        return Scaffold(
+          backgroundColor: Colors.black,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            title: const Text(
+              'Your Ghibli Art Is Ready!',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+          body: Center(
+            child:
+                _isReady
+                    ? player
+                    : const Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(color: Colors.white),
+                        SizedBox(height: 20),
+                        Text(
+                          'Preparing your masterpiece...',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
+          ),
+        );
+      },
     );
   }
 }
